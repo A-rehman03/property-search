@@ -1,0 +1,26 @@
+# Android Studio generated files
+.gradle
+/local.properties
+/.idea/
+*.iml
+*.iapr
+*.iws
+*.ipr
+
+# Build files
+/build/
+/captures/
+.externalNativeBuild/
+.cxx/
+
+# Distribution files
+*.apk
+*.aab
+*.ap_
+
+# Keystore files
+*.jks
+*.keystore
+
+# Other
+.DS_Store
