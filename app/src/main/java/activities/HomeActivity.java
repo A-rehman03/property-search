@@ -1,55 +1,53 @@
 package activities;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.widget.ImageButton;
-import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.realestate.R;
+import adapters.PropertyAdapter;
+import auth.UserAuthService;
 import database.DatabaseHelper;
 import models.Property;
-import adapters.PropertyAdapter;
 
 import java.util.ArrayList;
 
 public class HomeActivity extends AppCompatActivity {
 
-    ListView listView;
+    RecyclerView recyclerView;
     PropertyAdapter adapter;
     ArrayList<Property> propertyList;
     DatabaseHelper db;
-
-    ImageButton btnFavorites, btnSearch;
+    UserAuthService authService;
+    String userRole;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_user_home);
 
-        listView = findViewById(R.id.propertyListView);
-        btnFavorites = findViewById(R.id.btnFavorites);
-        btnSearch = findViewById(R.id.btnSearch);
+        recyclerView = findViewById(R.id.recyclerProperties);
 
         db = new DatabaseHelper(this);
+        authService = new UserAuthService(this);
+
+        // Get logged-in user's role
+        Object roleObj = authService.getLoggedInUserRole();
+        if (roleObj != null) {
+            userRole = roleObj.toString();
+        } else {
+            userRole = "user"; // default fallback
+        }
+
         propertyList = db.getAllProperties();
 
-        adapter = new PropertyAdapter(this, propertyList);
-        listView.setAdapter(adapter);
+        adapter = new PropertyAdapter(this, propertyList, userRole);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
 
-        listView.setOnItemClickListener((p, v, pos, id) -> {
-            Intent i = new Intent(this, PropertyDetailActivity.class);
-            i.putExtra("property_id", propertyList.get(pos).getId());
-            startActivity(i);
-        });
-
-        btnFavorites.setOnClickListener(v ->
-                startActivity(new Intent(this, FavoritesActivity.class))
-        );
-
-        btnSearch.setOnClickListener(v ->
-                startActivity(new Intent(this, SearchActivity.class))
-        );
+        Toast.makeText(this, "Logged in as: " + userRole, Toast.LENGTH_SHORT).show();
     }
 }

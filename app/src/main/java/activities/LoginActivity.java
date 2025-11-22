@@ -1,45 +1,56 @@
 package activities;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.realestate.R; // Adjust this if your package name is different
+import com.example.realestate.R; // Adjust if your package name is different
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
+
 import database.DatabaseHelper;
 import models.User;
 
 public class LoginActivity extends AppCompatActivity {
 
-    EditText etEmail, etPassword;
-    Button btnLogin, btnRegister;
+    TextInputEditText etEmail, etPassword;
+    MaterialButton btnLogin;
+    TextView txtSignupLink;
     DatabaseHelper db;
 
-    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        etEmail = findViewById(R.id.etEmail);
-        etPassword = findViewById(R.id.etPassword);
+        // --- initialize views ---
+        etEmail = findViewById(R.id.edtEmail);
+        etPassword = findViewById(R.id.edtPassword);
         btnLogin = findViewById(R.id.btnLogin);
-        btnRegister = findViewById(R.id.btnRegister);
+        txtSignupLink = findViewById(R.id.txtSignupLink);
+
         db = new DatabaseHelper(this);
 
+        // --- login button ---
         btnLogin.setOnClickListener(v -> handleLogin());
-        btnRegister.setOnClickListener(v -> {
-            startActivity(new Intent(this, RegisterActivity.class));
+
+        // --- signup link ---
+        txtSignupLink.setOnClickListener(v -> {
+            startActivity(new Intent(this, SignupActivity.class));
         });
     }
 
     private void handleLogin() {
-        String email = etEmail.getText().toString();
-        String pass = etPassword.getText().toString();
+        String email = etEmail.getText().toString().trim();
+        String pass = etPassword.getText().toString().trim();
+
+        if (email.isEmpty() || pass.isEmpty()) {
+            Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         User user = db.loginUser(email, pass);
         if (user != null) {

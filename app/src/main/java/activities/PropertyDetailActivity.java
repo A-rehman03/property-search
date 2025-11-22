@@ -23,14 +23,13 @@ public class PropertyDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_property_details);
 
-        tvTitle = findViewById(R.id.tvTitle);
-        tvPrice = findViewById(R.id.tvPrice);
-        tvLocation = findViewById(R.id.tvLocation);
-        tvType = findViewById(R.id.tvType);
-        tvDesc = findViewById(R.id.tvDesc);
-        ivImage = findViewById(R.id.ivPropertyImage);
-        btnAddFav = findViewById(R.id.btnAddFavorite);
-
+        ivImage = findViewById(R.id.imgProperty);
+        tvTitle = findViewById(R.id.txtTitle);
+        tvPrice = findViewById(R.id.txtPrice);
+        tvLocation = findViewById(R.id.txtLocation);
+        tvType = findViewById(R.id.txtType);
+        tvDesc = findViewById(R.id.txtDescription);
+        // btnAddFav = findViewById(R.id.btnAddFavorite);
         db = new DatabaseHelper(this);
 
         propertyId = getIntent().getIntExtra("property_id", -1);
@@ -44,9 +43,9 @@ public class PropertyDetailActivity extends AppCompatActivity {
             tvDesc.setText(p.getDescription());
         }
 
-        btnAddFav.setOnClickListener(v -> {
-            db.addToFavorites(1, propertyId); // TODO: replace hardcoded user ID
-            btnAddFav.setText("Added!");
-        });
+//        btnAddFav.setOnClickListener(v -> {
+//            db.addToFavorites(1, propertyId); // TODO: replace hardcoded user ID
+//            btnAddFav.setText("Added!");
+//        });
     }
 }

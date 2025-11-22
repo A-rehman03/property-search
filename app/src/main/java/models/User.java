@@ -20,6 +20,15 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
+    public User(String username, String email, String password, String phone, String role) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.phoneNumber = phone;
+        this.role = role;
+    }
+
+
     // Getters & Setters
 
     public int getId() {

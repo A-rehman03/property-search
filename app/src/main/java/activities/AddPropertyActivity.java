@@ -27,13 +27,14 @@ public class AddPropertyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_property);
 
-        etTitle = findViewById(R.id.etTitle);
-        etDesc = findViewById(R.id.etDesc);
-        etPrice = findViewById(R.id.etPrice);
-        etLocation = findViewById(R.id.etLocation);
-        etType = findViewById(R.id.etType);
-        etPhone = findViewById(R.id.etPhone);
-        btnAdd = findViewById(R.id.btnAddProperty);
+        etTitle = findViewById(R.id.edtTitle);
+        etDesc = findViewById(R.id.edtDescription);
+        etPrice = findViewById(R.id.edtPrice);
+        etLocation = findViewById(R.id.edtLocation);
+        etType = findViewById(R.id.spinnerType);
+        etPhone = findViewById(R.id.edtPhone);
+        btnAdd = findViewById(R.id.btnSaveProperty);
+
 
         propertyDao = new PropertyDao(this);
 

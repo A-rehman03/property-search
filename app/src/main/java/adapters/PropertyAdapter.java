@@ -1,96 +1,106 @@
 package adapters;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.realestate.R;
+
+import activities.AdminDashboardActivity;
 import models.Property;
-import activities.PropertyDetailActivity;
 
 import java.util.ArrayList;
 
-public class PropertyAdapter extends BaseAdapter {
+public class PropertyAdapter extends RecyclerView.Adapter<PropertyAdapter.ViewHolder> {
 
     private Context context;
-    private ArrayList<Property> properties;
+    private ArrayList<Property> propertyList;
+    private String userRole; // "admin" or "user"
 
-    public PropertyAdapter(Context context, ArrayList<Property> properties) {
+    public PropertyAdapter(Context context, ArrayList<Property> propertyList, String userRole) {
         this.context = context;
-        this.properties = properties;
+        this.propertyList = propertyList;
+        this.userRole = userRole;
+    }
+
+    public PropertyAdapter(AdminDashboardActivity context, ArrayList<Property> propertyList) {
+        this.context = context;
+        this.propertyList = propertyList;
+
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_property, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public int getCount() {
-        return properties.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return properties.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return properties.get(position).getId();
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
-
-        if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_property, parent, false);
-            holder = new ViewHolder();
-            holder.tvTitle = convertView.findViewById(R.id.tvTitle);
-            holder.tvPrice = convertView.findViewById(R.id.tvPrice);
-            holder.tvLocation = convertView.findViewById(R.id.tvLocation);
-            holder.btnCall = convertView.findViewById(R.id.btnCall);
-            holder.ivImage = convertView.findViewById(R.id.ivPropertyImage);
-            convertView.setTag(holder);
-        } else {
-            holder = (ViewHolder) convertView.getTag();
-        }
-
-        Property property = properties.get(position);
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Property property = propertyList.get(position);
 
         holder.tvTitle.setText(property.getTitle());
         holder.tvPrice.setText("PKR " + property.getPrice());
         holder.tvLocation.setText(property.getLocation());
 
-        // Load first image (if any) - use URI
-        if (property.getImagePaths() != null && !property.getImagePaths().isEmpty()) {
-            holder.ivImage.setImageURI(Uri.parse(property.getImagePaths().split(",")[0]));
+        // Show/hide buttons based on role
+        if ("admin".equals(userRole)) {
+            holder.adminActions.setVisibility(View.VISIBLE);
+            holder.userActions.setVisibility(View.GONE);
         } else {
-            holder.ivImage.setImageResource(R.drawable.ic_property_placeholder);
+            holder.adminActions.setVisibility(View.GONE);
+            holder.userActions.setVisibility(View.VISIBLE);
         }
 
-        holder.btnCall.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_DIAL);
-            intent.setData(Uri.parse("tel:" + property.getPhoneNumber()));
-            context.startActivity(intent);
+        // Button actions
+        holder.btnEdit.setOnClickListener(v -> {
+            // Implement edit property
         });
 
-        // Click on item to view details
-        convertView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, PropertyDetailActivity.class);
-            intent.putExtra("property_id", property.getId());
-            context.startActivity(intent);
+        holder.btnDelete.setOnClickListener(v -> {
+            // Implement delete property
         });
 
-        return convertView;
+        holder.btnFavorite.setOnClickListener(v -> {
+            // Implement favorite property
+        });
+
+        holder.btnContact.setOnClickListener(v -> {
+            // Implement contact owner
+        });
     }
 
-    private static class ViewHolder {
+    @Override
+    public int getItemCount() {
+        return propertyList.size();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+
         TextView tvTitle, tvPrice, tvLocation;
-        Button btnCall;
-        ImageView ivImage;
+        Button btnEdit, btnDelete, btnFavorite, btnContact;
+        View adminActions, userActions;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+
+            tvTitle = itemView.findViewById(R.id.tvTitle);
+            tvPrice = itemView.findViewById(R.id.tvPrice);
+            tvLocation = itemView.findViewById(R.id.tvLocation);
+
+            adminActions = itemView.findViewById(R.id.adminActions);
+            userActions = itemView.findViewById(R.id.userActions);
+
+            btnEdit = itemView.findViewById(R.id.btnEdit);
+            btnDelete = itemView.findViewById(R.id.btnDelete);
+            btnFavorite = itemView.findViewById(R.id.btnFavorite);
+            btnContact = itemView.findViewById(R.id.btnContact);
+        }
     }
 }

@@ -1,3 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Real Estate</string>
+    <string name="login">Login</string>
+    <string name="signup">Sign Up</string>
+    <string name="logout">Logout</string>
+    <string name="add_property">Add Property</string>
+    <string name="edit_property">Edit Property</string>
+    <string name="delete">Delete</string>
+    <string name="settings">Settings</string>
 </resources>

@@ -24,14 +24,14 @@ public class EditPropertyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_property);
 
-        etTitle = findViewById(R.id.etTitle);
-        etDesc = findViewById(R.id.etDesc);
-        etPrice = findViewById(R.id.etPrice);
-        etLocation = findViewById(R.id.etLocation);
-        etType = findViewById(R.id.etType);
-        etPhone = findViewById(R.id.etPhone);
-        btnUpdate = findViewById(R.id.btnUpdate);
-        btnDelete = findViewById(R.id.btnDelete);
+        etTitle = findViewById(R.id.edtTitle);
+        etDesc = findViewById(R.id.edtDescription);
+        etPrice = findViewById(R.id.edtPrice);
+        etLocation = findViewById(R.id.edtLocation);
+        etType = findViewById(R.id.spinnerType);
+        etPhone = findViewById(R.id.edtPhone);
+        btnUpdate = findViewById(R.id.btnUpdateProperty);
+
 
         propertyDao = new PropertyDao(this);
         propertyId = getIntent().getIntExtra("property_id", -1);

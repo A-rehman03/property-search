@@ -1,83 +1,86 @@
 package activities;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.Toast;
-
+import android.util.Log;
+import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.realestate.R;
+
 import auth.UserAuthService;
 import auth.ValidationUtils;
-import models.User;
 
 public class SignupActivity extends AppCompatActivity {
 
-    EditText etName, etEmail, etPassword, etPhone;
-    RadioButton rbUser, rbAdmin;
+    EditText etUsername, etEmail, etPassword, etPhone;
+    RadioGroup roleGroup;
     Button btnSignup;
 
     UserAuthService authService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("SIGNUP_DEBUG", "ContentView set: " + R.layout.activity_signup);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
-        etName = findViewById(R.id.etName);
-        etEmail = findViewById(R.id.etEmail);
-        etPassword = findViewById(R.id.etPassword);
-        etPhone = findViewById(R.id.etPhone);
-        rbUser = findViewById(R.id.rbUser);
-        rbAdmin = findViewById(R.id.rbAdmin);
-        btnSignup = findViewById(R.id.btnSignup);
-
         authService = new UserAuthService(this);
+
+        etUsername = findViewById(R.id.edtUsername);
+        etEmail    = findViewById(R.id.edtEmail);
+        etPassword = findViewById(R.id.edtPassword);
+        etPhone    = findViewById(R.id.edtPhone);
+        roleGroup  = findViewById(R.id.roleGroup);
+        btnSignup  = findViewById(R.id.btnSignup);
+        Log.d("SIGNUP_DEBUG", "etUsername=" + etUsername + ", etEmail=" + etEmail
+                + ", etPassword=" + etPassword + ", etPhone=" + etPhone);
+
 
         btnSignup.setOnClickListener(v -> handleSignup());
     }
 
     private void handleSignup() {
-        String name = etName.getText().toString();
-        String email = etEmail.getText().toString();
-        String password = etPassword.getText().toString();
-        String phone = etPhone.getText().toString();
-        String role = rbAdmin.isChecked() ? "admin" : "user";
+        Log.d("SIGNUP_DEBUG", "References - etUsername=" + etUsername + ", etEmail=" + etEmail
+                + ", etPassword=" + etPassword + ", etPhone=" + etPhone);
 
-        if (!ValidationUtils.isNonEmpty(name) || !ValidationUtils.isNonEmpty(password)
-                || !ValidationUtils.isNonEmpty(email)) {
+        String username = etUsername != null && etUsername.getText() != null
+                ? etUsername.getText().toString().trim() : null;
+        String email = etEmail != null && etEmail.getText() != null
+                ? etEmail.getText().toString().trim() : null;
+        String password = etPassword != null && etPassword.getText() != null
+                ? etPassword.getText().toString().trim() : null;
+        String phone = etPhone != null && etPhone.getText() != null
+                ? etPhone.getText().toString().trim() : null;
+
+        int selectedRoleId = roleGroup.getCheckedRadioButtonId();
+        String role = null;
+        if (selectedRoleId == R.id.radioAdmin) {
+            role = "admin";
+        } else if (selectedRoleId == R.id.radioUser) {
+            role = "user";
+        }
+
+        Log.d("SIGNUP_DEBUG", "User input - username: " + username + ", email: " + email
+                + ", password: " + password + ", phone: " + phone + ", role: " + role);
+
+        if (username == null || username.isEmpty() ||
+                email == null || email.isEmpty() ||
+                password == null || password.isEmpty() ||
+                phone == null || phone.isEmpty() ||
+                role == null) {
             Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (!ValidationUtils.isValidEmail(email)) {
-            Toast.makeText(this, "Invalid email format", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (!ValidationUtils.isValidPassword(password)) {
-            Toast.makeText(this, "Password must be at least 4 characters", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        User user = new User();
-        user.setUsername(name);
-        user.setEmail(email);
-        user.setPassword(password);
-        user.setPhoneNumber(phone);
-        user.setRole(role);
-
-        boolean success = authService.registerUser(user);
+        boolean success = authService.register(username, email, password, phone, role);
 
         if (success) {
-            Toast.makeText(this, "Signup Successful", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(this, LoginActivity.class));
+            Toast.makeText(this, "Signup successful", Toast.LENGTH_SHORT).show();
             finish();
         } else {
-            Toast.makeText(this, "Email already exists", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Signup failed", Toast.LENGTH_SHORT).show();
         }
     }
+
 }

@@ -47,18 +47,19 @@ public class AdminPropertyAdapter extends BaseAdapter {
         ViewHolder holder;
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_admin_property, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_property_admin, parent, false);
             holder = new ViewHolder();
-            holder.tvTitle = convertView.findViewById(R.id.tvTitle);
-            holder.tvPrice = convertView.findViewById(R.id.tvPrice);
-            holder.tvLocation = convertView.findViewById(R.id.tvLocation);
+            holder.tvTitle = convertView.findViewById(R.id.txtPropertyTitle);
+            holder.tvPrice = convertView.findViewById(R.id.txtPropertyPrice);
+            holder.tvLocation = convertView.findViewById(R.id.txtPropertyLocation);
             holder.btnEdit = convertView.findViewById(R.id.btnEdit);
             holder.btnDelete = convertView.findViewById(R.id.btnDelete);
-            holder.ivImage = convertView.findViewById(R.id.ivPropertyImage);
+            holder.ivImage = convertView.findViewById(R.id.imgProperty);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
+
 
         Property property = properties.get(position);
 
@@ -70,7 +71,7 @@ public class AdminPropertyAdapter extends BaseAdapter {
         if (property.getImagePaths() != null && !property.getImagePaths().isEmpty()) {
             holder.ivImage.setImageURI(Uri.parse(property.getImagePaths().split(",")[0]));
         } else {
-            holder.ivImage.setImageResource(R.drawable.ic_property_placeholder);
+            holder.ivImage.setImageResource(R.drawable.ic_location);
         }
 
         // Edit button

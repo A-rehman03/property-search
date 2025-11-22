@@ -1,2 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <dimen name="padding_small">6dp</dimen>
+    <dimen name="padding_medium">12dp</dimen>
+    <dimen name="padding_large">20dp</dimen>
+
+    <dimen name="radius_small">8dp</dimen>
+    <dimen name="radius_medium">14dp</dimen>
+    <dimen name="radius_large">24dp</dimen>
+
+    <dimen name="card_elevation">4dp</dimen>
+</resources>
