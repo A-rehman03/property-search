@@ -5,16 +5,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.realestate.R;
 import database.PropertyDao;
 import models.Property;
 
-public class EditPropertyActivity extends AppCompatActivity {
+public class EditPropertyActivity extends BaseActivity {
 
     EditText etTitle, etDesc, etPrice, etLocation, etType, etPhone;
-    Button btnUpdate, btnDelete;
+    Button btnUpdate;
     PropertyDao propertyDao;
     int propertyId;
     Property property;
@@ -41,20 +39,20 @@ public class EditPropertyActivity extends AppCompatActivity {
             etTitle.setText(property.getTitle());
             etDesc.setText(property.getDescription());
             etPrice.setText(String.valueOf(property.getPrice()));
-            etLocation.setText(property.getLocation());
+            etLocation.setText(property.getAddress());
             etType.setText(property.getType());
             etPhone.setText(property.getPhoneNumber());
         }
 
         btnUpdate.setOnClickListener(v -> updateProperty());
-        btnDelete.setOnClickListener(v -> deleteProperty());
+        // Note: btnDelete is not in the layout, so it's removed from here
     }
 
     private void updateProperty() {
         property.setTitle(etTitle.getText().toString());
         property.setDescription(etDesc.getText().toString());
         property.setPrice(Double.parseDouble(etPrice.getText().toString()));
-        property.setLocation(etLocation.getText().toString());
+        property.setAddress(etLocation.getText().toString());
         property.setType(etType.getText().toString());
         property.setPhoneNumber(etPhone.getText().toString());
 

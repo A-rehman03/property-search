@@ -2,28 +2,35 @@
 <resources>
 
     <!-- BRAND COLORS -->
-    <color name="colorPrimary">#0A7F52</color>
-    <color name="colorPrimaryDark">#065E3E</color>
-    <color name="colorPrimaryLight">#4CC89E</color>
-
-    <!-- GRADIENTS -->
-    <color name="gradient_start">#0A7F52</color>
-    <color name="gradient_end">#4CC89E</color>
-
-    <!-- ACCENT GOLD -->
-    <color name="accentGold">#D4AF37</color>
-
+    <color name="colorPrimary">#0E314C</color>
+    <color name="colorPrimaryDark">#081D2D</color>
+    <color name="colorPrimaryLight">#2979FF</color>
+    <color name="colorAccent">#2979FF</color>
+    
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="gradient_start">#FF5722</color> <!-- Example color -->
+    <color name="gradient_end">#FF9800</color>
+    <color name="accentGold">#F4D018</color>
     <!-- BACKGROUND -->
-    <color name="backgroundLight">#FFFFFF</color>
+    <color name="backgroundLight">#F8F9FB</color>
     <color name="backgroundDark">#121212</color>
-
+    <color name="surfaceColor">#FFFFFF</color>
+    <color name="inputBackground">#F0F2F5</color>
+    
     <!-- TEXT -->
-    <color name="textPrimary">#1A1A1A</color>
-    <color name="textSecondary">#5A5A5A</color>
+    <color name="textPrimary">#1A1D1E</color>
+    <color name="textSecondary">#6C7278</color>
     <color name="textInverse">#FFFFFF</color>
-
-    <!-- MISC -->
+    
+    <!-- STATUS -->
+    <color name="successColor">#4CAF50</color>
     <color name="errorColor">#D32F2F</color>
-    <color name="dividerColor">#DDDDDD</color>
+    <color name="warningColor">#FFA000</color>
+    
+    <!-- UI ELEMENTS -->
+    <color name="dividerColor">#E0E0E0</color>
+    <color name="iconTint">#0E314C</color>
+    <color name="iconTintSecondary">#9E9E9E</color>
 
 </resources>

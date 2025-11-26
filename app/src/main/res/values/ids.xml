@@ -4,4 +4,5 @@
     <item name="etPassword" type="id" />
     <item name="btnLogin" type="id" />
     <item name="btnRegister" type="id" />
+    <item name="property_image" type="id" />
 </resources>

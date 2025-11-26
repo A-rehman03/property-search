@@ -1,202 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
-    android:padding="20dp">
+    android:fillViewport="true">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        tools:context="activities.AddPropertyActivity">
 
-        <!-- Heading -->
         <TextView
-            android:id="@+id/txtAddPropertyTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Add Property"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:text="Add New Property"
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
-        <!-- Image Picker Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardImagePicker"
-            android:layout_width="0dp"
-            android:layout_height="200dp"
-            android:layout_marginTop="20dp"
-            app:cardElevation="6dp"
-            app:cardCornerRadius="16dp"
-            app:layout_constraintTop_toBottomOf="@id/txtAddPropertyTitle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <ImageView
-                    android:id="@+id/imgSelected"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:visibility="gone" />
-
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <ImageView
-                        android:id="@+id/iconAddImage"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:src="@drawable/ic_add"
-                        app:tint="?attr/colorPrimary" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Add Image"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="16sp"
-                        android:layout_marginTop="8dp" />
-                </LinearLayout>
-
-            </FrameLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Title -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/inputLayoutTitle"
-            android:layout_width="0dp"
+        <EditText
+            android:id="@+id/etTitle"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Title"
-            android:layout_marginTop="25dp"
-            app:layout_constraintTop_toBottomOf="@id/cardImagePicker"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_input"
+            android:hint="Title" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edtTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Description -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/inputLayoutDesc"
-            android:layout_width="0dp"
+        <EditText
+            android:id="@+id/etDescription"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_input"
+            android:gravity="top"
             android:hint="Description"
-            android:layout_marginTop="20dp"
-            app:layout_constraintTop_toBottomOf="@id/inputLayoutTitle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:lines="4" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edtDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minLines="4"
-                android:gravity="top" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Price -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/inputLayoutPrice"
-            android:layout_width="0dp"
+        <EditText
+            android:id="@+id/etPrice"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_input"
             android:hint="Price"
-            android:layout_marginTop="20dp"
-            app:layout_constraintTop_toBottomOf="@id/inputLayoutDesc"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:inputType="numberDecimal" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edtPrice"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Location -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/inputLayoutLocation"
-            android:layout_width="0dp"
+        <EditText
+            android:id="@+id/etLocation"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Location"
-            android:layout_marginTop="20dp"
-            app:layout_constraintTop_toBottomOf="@id/inputLayoutPrice"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_input"
+            android:hint="Location" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edtLocation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Property Type -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/inputLayoutType"
-            android:layout_width="0dp"
+        <Spinner
+            android:id="@+id/spinnerType"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Property Type"
-            android:layout_marginTop="20dp"
-            app:layout_constraintTop_toBottomOf="@id/inputLayoutLocation"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_input"
+            android:entries="@array/property_types" />
+        
+        <ImageView
+            android:id="@+id/ivPropertyImage"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="16dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/default_property_image" />
 
-            <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                android:id="@+id/spinnerType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="none"
-                android:hint="Select Type" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Phone -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/inputLayoutPhone"
-            android:layout_width="0dp"
+        <Button
+            android:id="@+id/btnSelectImage"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Agent Phone"
-            android:layout_marginTop="20dp"
-            app:layout_constraintTop_toBottomOf="@id/inputLayoutType"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:layout_marginTop="8dp"
+            android:text="Select Image" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edtPhone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="phone" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Save Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSaveProperty"
-            android:layout_width="0dp"
+        <TextView
+            android:id="@+id/tvImageCount"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save Property"
-            android:textAllCaps="false"
-            style="@style/Widget.Material3.Button.Filled"
-            android:layout_marginTop="30dp"
-            app:cornerRadius="16dp"
-            app:layout_constraintTop_toBottomOf="@id/inputLayoutPhone"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:layout_marginTop="8dp"
+            android:text="0 images selected" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <EditText
+            android:id="@+id/etPhoneNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_input"
+            android:hint="Phone Number"
+            android:inputType="phone" />
+
+        <Button
+            android:id="@+id/btnAddProperty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_button_primary"
+            android:text="Add Property"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
 </ScrollView>

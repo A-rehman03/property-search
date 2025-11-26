@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.realestate.R;
 import models.Property;
 import activities.EditPropertyActivity;
@@ -67,12 +68,19 @@ public class AdminPropertyAdapter extends BaseAdapter {
         holder.tvPrice.setText("PKR " + property.getPrice());
         holder.tvLocation.setText(property.getLocation());
 
-        // Load first image
+        // Load first image using Glide
         if (property.getImagePaths() != null && !property.getImagePaths().isEmpty()) {
-            holder.ivImage.setImageURI(Uri.parse(property.getImagePaths().split(",")[0]));
+            String firstImagePath;
+            firstImagePath = String.valueOf(property.getImagePaths().getClass());
+            Glide.with(context)
+                    .load(Uri.parse(firstImagePath))
+                    .placeholder(R.drawable.default_property_image) // A default image
+                    .error(R.drawable.default_property_image)       // An error image
+                    .into(holder.ivImage);
         } else {
-            holder.ivImage.setImageResource(R.drawable.ic_location);
+            holder.ivImage.setImageResource(R.drawable.default_property_image);
         }
+
 
         // Edit button
         holder.btnEdit.setOnClickListener(v -> {

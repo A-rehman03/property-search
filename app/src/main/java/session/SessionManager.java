@@ -68,4 +68,12 @@ public class SessionManager {
         editor.putBoolean(KEY_DARK_MODE, enabled);
         editor.apply();
     }
+
+    public String getEmail() {
+        int userId = getUserId();
+        if (userId != -1) {
+            return "user" + userId + "@example.com";
+        }
+        return null;
+    }
 }

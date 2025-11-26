@@ -159,4 +159,12 @@ public class UserAuthService {
         User user = new User(username, email, password, phone, role);
         return registerUser(user);
     }
+
+    public void logoutUser() {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("isLoggedIn", 0);
+        db.update("users", values, "isLoggedIn = 1", null);
+        db.close();
+    }
 }

@@ -5,201 +5,226 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import models.Property;
-
 import java.util.ArrayList;
+import java.util.List;
+
+import models.Property;
 
 public class PropertyDao {
 
+    public static final String COLUMN_PROPERTY_ID = "property_id";
+    public static final String COLUMN_ADMIN_ID = "admin_id";
+    public static final String COLUMN_TITLE = "title";
+    public static final String COLUMN_DESCRIPTION = "description";
+    public static final String COLUMN_PRICE = "price";
+    public static final String COLUMN_ADDRESS = "address";
+    public static final String COLUMN_TYPE = "type";
+    public static final String TABLE_PROPERTIES = "properties";
+    public static final String COLUMN_PHONE_NUMBER = "phone_number";
     private DatabaseHelper dbHelper;
 
     public PropertyDao(Context context) {
         dbHelper = new DatabaseHelper(context);
     }
 
-    // ---------------------------------------------
-    // ADD PROPERTY
-    // ---------------------------------------------
     public long addProperty(Property property) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        long propertyId = -1;
+        try {
+            ContentValues values = new ContentValues();
+            values.put("title", property.getTitle());
+            values.put("description", property.getDescription());
+            values.put("price", property.getPrice());
+            values.put("address", property.getAddress());
+            values.put("type", property.getType());
+            values.put("phone_number", property.getPhoneNumber());
+            values.put("admin_id", property.getAdminId());
 
-        ContentValues values = new ContentValues();
-        values.put("adminId", property.getAdminId());
-        values.put("title", property.getTitle());
-        values.put("description", property.getDescription());
-        values.put("price", property.getPrice());
-        values.put("location", property.getLocation());
-        values.put("type", property.getType());
-        values.put("imagePaths", property.getImagePaths());
-        values.put("datePosted", property.getDatePosted());
-        values.put("phoneNumber", property.getPhoneNumber());
+            // The 'image_url' column in the properties table is redundant.
+            // The separate 'property_images' table is the correct source of truth.
+            // This line has been removed to prevent data duplication and potential bugs.
+            // if (property.getImagePaths() != null && !property.getImagePaths().isEmpty()) {
+            //     values.put("image_url", property.getImagePaths().get(0));
+            // }
 
-        long id = db.insert("properties", null, values);
-        db.close();
-        return id;
+            propertyId = db.insert("properties", null, values);
+
+            if (propertyId != -1 && property.getImagePaths() != null) {
+                for (String imagePath : property.getImagePaths()) {
+                    ContentValues imageValues = new ContentValues();
+                    imageValues.put("property_id", propertyId);
+                    imageValues.put("image_path", imagePath);
+                    db.insert("property_images", null, imageValues);
+                }
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+        return propertyId;
     }
 
-    // ---------------------------------------------
-    // UPDATE PROPERTY
-    // ---------------------------------------------
+    public List<Property> getAllProperties() {
+        List<Property> propertyList = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        try (Cursor cursor = db.rawQuery("SELECT * FROM properties", null)) {
+            if (cursor.moveToFirst()) {
+                do {
+                    propertyList.add(cursorToProperty(cursor, db));
+                } while (cursor.moveToNext());
+            }
+        }
+        return propertyList;
+    }
+
+    private Property cursorToProperty(Cursor cursor, SQLiteDatabase db) {
+        int propertyId = cursor.getInt(cursor.getColumnIndexOrThrow("property_id"));
+        List<String> imagePaths = getImagesForProperty(propertyId, db);
+
+        return new Property(
+                propertyId,
+                cursor.getInt(cursor.getColumnIndexOrThrow("admin_id")),
+                cursor.getString(cursor.getColumnIndexOrThrow("title")),
+                cursor.getString(cursor.getColumnIndexOrThrow("description")),
+                cursor.getDouble(cursor.getColumnIndexOrThrow("price")),
+                cursor.getString(cursor.getColumnIndexOrThrow("address")),
+                cursor.getString(cursor.getColumnIndexOrThrow("type")),
+                cursor.getString(cursor.getColumnIndexOrThrow("phone_number")),
+                imagePaths
+        );
+    }
+
+    private List<String> getImagesForProperty(int propertyId, SQLiteDatabase db) {
+        List<String> imagePaths = new ArrayList<>();
+        try (Cursor cursor = db.rawQuery("SELECT image_path FROM property_images WHERE property_id = ?", new String[]{String.valueOf(propertyId)})) {
+            if (cursor.moveToFirst()) {
+                do {
+                    imagePaths.add(cursor.getString(cursor.getColumnIndexOrThrow("image_path")));
+                } while (cursor.moveToNext());
+            }
+        }
+        return imagePaths;
+    }
+
+    public List<Property> getPropertiesByAdmin(int adminId) {
+        List<Property> propertyList = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        try (Cursor cursor = db.rawQuery("SELECT * FROM properties WHERE admin_id = ?", new String[]{String.valueOf(adminId)})) {
+            if (cursor.moveToFirst()) {
+                do {
+                    propertyList.add(cursorToProperty(cursor, db));
+                } while (cursor.moveToNext());
+            }
+        }
+        return propertyList;
+    }
     public boolean updateProperty(Property property) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        int rowsAffected = 0;
+        try {
+            ContentValues values = new ContentValues();
+            values.put("title", property.getTitle());
+            values.put("description", property.getDescription());
+            values.put("price", property.getPrice());
+            values.put("address", property.getAddress());
+            values.put("type", property.getType());
+            values.put("phone_number", property.getPhoneNumber());
 
-        ContentValues values = new ContentValues();
-        values.put("title", property.getTitle());
-        values.put("description", property.getDescription());
-        values.put("price", property.getPrice());
-        values.put("location", property.getLocation());
-        values.put("type", property.getType());
-        values.put("imagePaths", property.getImagePaths());
-        values.put("datePosted", property.getDatePosted());
-        values.put("phoneNumber", property.getPhoneNumber());
+            rowsAffected = db.update("properties", values, "property_id=?", new String[]{String.valueOf(property.getId())});
 
-        int rows = db.update("properties", values, "id = ?", new String[]{String.valueOf(property.getId())});
-        db.close();
-
-        return rows > 0;
+            db.delete("property_images", "property_id = ?", new String[]{String.valueOf(property.getId())});
+            if (property.getImagePaths() != null) {
+                for (String imagePath : property.getImagePaths()) {
+                    ContentValues imageValues = new ContentValues();
+                    imageValues.put("property_id", property.getId());
+                    imageValues.put("image_path", imagePath);
+                    db.insert("property_images", null, imageValues);
+                }
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+        return rowsAffected > 0;
     }
 
-    // ---------------------------------------------
-    // DELETE PROPERTY
-    // ---------------------------------------------
+    public Property getPropertyById(int propertyId) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Property property = null;
+        try (Cursor cursor = db.rawQuery("SELECT * FROM properties WHERE property_id=?", new String[]{String.valueOf(propertyId)})) {
+            if (cursor.moveToFirst()) {
+                property = cursorToProperty(cursor, db);
+            }
+        }
+        return property;
+    }
+
     public boolean deleteProperty(int propertyId) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        int rows = db.delete("properties", "id = ?", new String[]{String.valueOf(propertyId)});
-        db.close();
-        return rows > 0;
+        db.beginTransaction();
+        int rowsAffected = 0;
+        try {
+            db.delete("property_images", "property_id=?", new String[]{String.valueOf(propertyId)});
+            rowsAffected = db.delete("properties", "property_id=?", new String[]{String.valueOf(propertyId)});
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+        return rowsAffected > 0;
     }
 
-    // ---------------------------------------------
-    // GET ALL PROPERTIES (for users)
-    // ---------------------------------------------
-    public ArrayList<Property> getAllProperties() {
-        ArrayList<Property> list = new ArrayList<>();
+    public List<Property> filterProperties(String type, Double minPrice, Double maxPrice, String location) {
+        List<Property> filteredProperties = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        Cursor cursor = db.rawQuery("SELECT * FROM properties ORDER BY id DESC", null);
+        StringBuilder selection = new StringBuilder();
+        List<String> selectionArgsList = new ArrayList<>();
 
-        if (cursor.moveToFirst()) {
-            do {
-                list.add(cursorToProperty(cursor));
-            } while (cursor.moveToNext());
+        if (type != null && !type.isEmpty() && !type.equalsIgnoreCase("All")) {
+            selection.append("type = ?");
+            selectionArgsList.add(type);
         }
 
-        cursor.close();
-        db.close();
-        return list;
-    }
-
-    // ---------------------------------------------
-    // GET PROPERTIES OF A SPECIFIC ADMIN
-    // ---------------------------------------------
-    public ArrayList<Property> getPropertiesByAdmin(int adminId) {
-        ArrayList<Property> list = new ArrayList<>();
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-        Cursor cursor = db.rawQuery(
-                "SELECT * FROM properties WHERE adminId = ? ORDER BY id DESC",
-                new String[]{String.valueOf(adminId)}
-        );
-
-        if (cursor.moveToFirst()) {
-            do {
-                list.add(cursorToProperty(cursor));
-            } while (cursor.moveToNext());
+        if (minPrice != null && minPrice > 0) {
+            if (selection.length() > 0) {
+                selection.append(" AND ");
+            }
+            selection.append("price >= ?");
+            selectionArgsList.add(String.valueOf(minPrice));
         }
 
-        cursor.close();
-        db.close();
-        return list;
-    }
-
-    // ---------------------------------------------
-    // GET A SINGLE PROPERTY BY ID
-    // ---------------------------------------------
-    public Property getPropertyById(int id) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-        Cursor cursor = db.rawQuery(
-                "SELECT * FROM properties WHERE id = ?",
-                new String[]{String.valueOf(id)}
-        );
-
-        if (cursor.moveToFirst()) {
-            Property property = cursorToProperty(cursor);
-            cursor.close();
-            db.close();
-            return property;
+        if (maxPrice != null && maxPrice > 0) {
+            if (selection.length() > 0) {
+                selection.append(" AND ");
+            }
+            selection.append("price <= ?");
+            selectionArgsList.add(String.valueOf(maxPrice));
         }
 
-        cursor.close();
-        db.close();
-        return null;
-    }
-
-    // ---------------------------------------------
-    // SEARCH PROPERTY (Title, Location)
-    // ---------------------------------------------
-    public ArrayList<Property> searchProperties(String keyword) {
-        ArrayList<Property> list = new ArrayList<>();
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-        Cursor cursor = db.rawQuery(
-                "SELECT * FROM properties WHERE title LIKE ? OR location LIKE ? ORDER BY id DESC",
-                new String[]{"%" + keyword + "%", "%" + keyword + "%"}
-        );
-
-        if (cursor.moveToFirst()) {
-            do {
-                list.add(cursorToProperty(cursor));
-            } while (cursor.moveToNext());
+        if (location != null && !location.trim().isEmpty()) {
+            if (selection.length() > 0) {
+                selection.append(" AND ");
+            }
+            selection.append("address LIKE ?");
+            selectionArgsList.add("%" + location + "%");
         }
 
-        cursor.close();
-        db.close();
-        return list;
-    }
-
-    // ---------------------------------------------
-    // FILTER BY TYPE & PRICE RANGE & LOCATION
-    // ---------------------------------------------
-    public ArrayList<Property> filterProperties(String type, double minPrice, double maxPrice, String location) {
-        ArrayList<Property> list = new ArrayList<>();
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-        Cursor cursor = db.rawQuery(
-                "SELECT * FROM properties WHERE type = ? AND price BETWEEN ? AND ? AND location LIKE ? ORDER BY id DESC",
-                new String[]{type, String.valueOf(minPrice), String.valueOf(maxPrice), "%" + location + "%"}
-        );
-
-        if (cursor.moveToFirst()) {
-            do {
-                list.add(cursorToProperty(cursor));
-            } while (cursor.moveToNext());
+        if (selection.length() == 0) {
+            return getAllProperties();
         }
 
-        cursor.close();
-        db.close();
-        return list;
-    }
+        String[] selectionArgs = selectionArgsList.toArray(new String[0]);
+        String selectionStr = selection.toString();
 
-    // ---------------------------------------------
-    // HELPER: MAP CURSOR → PROPERTY MODEL
-    // ---------------------------------------------
-    private Property cursorToProperty(Cursor cursor) {
-        Property p = new Property();
-
-        p.setId(cursor.getInt(cursor.getColumnIndexOrThrow("id")));
-        p.setAdminId(cursor.getInt(cursor.getColumnIndexOrThrow("adminId")));
-        p.setTitle(cursor.getString(cursor.getColumnIndexOrThrow("title")));
-        p.setDescription(cursor.getString(cursor.getColumnIndexOrThrow("description")));
-        p.setPrice(cursor.getDouble(cursor.getColumnIndexOrThrow("price")));
-        p.setLocation(cursor.getString(cursor.getColumnIndexOrThrow("location")));
-        p.setType(cursor.getString(cursor.getColumnIndexOrThrow("type")));
-        p.setImagePaths(cursor.getString(cursor.getColumnIndexOrThrow("imagePaths")));
-        p.setDatePosted(cursor.getString(cursor.getColumnIndexOrThrow("datePosted")));
-        p.setPhoneNumber(cursor.getString(cursor.getColumnIndexOrThrow("phoneNumber")));
-
-        return p;
+        try (Cursor cursor = db.query("properties", null, selectionStr, selectionArgs, null, null, null)) {
+            if (cursor.moveToFirst()) {
+                do {
+                    filteredProperties.add(cursorToProperty(cursor, db));
+                } while (cursor.moveToNext());
+            }
+        }
+        return filteredProperties;
     }
 }

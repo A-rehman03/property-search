@@ -78,4 +78,20 @@ public class User {
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
+
+    public byte[] getName() {
+        return null;
+    }
+
+    public void setName(byte[] name) {
+        this.username = new String(name);
+    }
+
+    public byte[] getPhone() {
+        return null;
+    }
+
+    public void setPhone(byte[] phone) {
+        this.phoneNumber = new String(phone);
+    }
 }

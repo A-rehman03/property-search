@@ -24,7 +24,13 @@
         <activity android:name="activities.SignupActivity" android:exported="false"/>
         <activity android:name="activities.HomeActivity" android:exported="false"/>
         <activity android:name="activities.PropertyDetailActivity" android:exported="false"/>
+        <activity android:name="activities.PropertyDetailsActivity" android:exported="false"/>
         <activity android:name="activities.SettingsActivity" android:exported="false"/>
+        <activity android:name="activities.AdminDashboardActivity" android:exported="false"/>
+        <activity android:name="activities.AddPropertyActivity" android:exported="false"/>
+        <activity android:name="activities.EditPropertyActivity" android:exported="false"/>
+        <activity android:name="activities.ChatActivity" android:exported="false"/>
+        <activity android:name="activities.ProfileActivity" android:exported="false"/>
 
     </application>
 

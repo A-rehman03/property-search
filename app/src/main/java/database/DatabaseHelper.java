@@ -6,19 +6,49 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
+
 import models.Property;
 import models.User;
 
-import java.util.ArrayList;
-
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    public static final String DATABASE_NAME = "realestate.db";
-    public static final int DATABASE_VERSION = 2;
+    private static final String DATABASE_NAME = "real_estate.db";
+    private static final int DATABASE_VERSION = 4; // Incremented version to trigger onUpgrade
 
-    // Tables
-    public static final String TABLE_USERS = "users";
-    public static final String TABLE_PROPERTIES = "properties";
+    // User table
+    private static final String TABLE_USERS = "users";
+    private static final String COLUMN_USER_ID = "id";
+    private static final String COLUMN_USER_EMAIL = "email";
+    private static final String COLUMN_USER_PASSWORD = "password";
+    private static final String COLUMN_USER_ROLE = "role";
+    private static final String COLUMN_USER_PHONE = "phoneNumber";
+    private static final String COLUMN_USER_NAME = "username";
+    private static final String COLUMN_USER_IS_LOGGED_IN = "isLoggedIn";
+
+    // Property table
+    private static final String TABLE_PROPERTIES = "properties";
+    private static final String COLUMN_PROPERTY_ID = "property_id";
+    private static final String COLUMN_TITLE = "title";
+    private static final String COLUMN_DESCRIPTION = "description";
+    private static final String COLUMN_PRICE = "price";
+    private static final String COLUMN_ADDRESS = "address";
+    private static final String COLUMN_TYPE = "type";
+    private static final String COLUMN_PHONE_NUMBER = "phone_number";
+    private static final String COLUMN_IMAGE_URL = "image_url"; // Will store a single representative image URL
+    private static final String COLUMN_ADMIN_ID = "admin_id";
+
+    // Image table
+    private static final String TABLE_PROPERTY_IMAGES = "property_images";
+    private static final String COLUMN_IMAGE_ID = "image_id";
+    private static final String COLUMN_IMAGE_PATH = "image_path";
+    private static final String COLUMN_PROPERTY_FK_ID = "property_id";
+
+    // Favorites table
+    private static final String TABLE_FAVORITES = "favorites";
+    private static final String COLUMN_FAVORITE_ID = "favorite_id";
+    private static final String COLUMN_USER_FK_ID = "user_id";
+    private static final String COLUMN_PROPERTY_FAVORITE_FK_ID = "property_id";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -26,167 +56,77 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        String CREATE_USERS_TABLE = "CREATE TABLE " + TABLE_USERS + "("
+                + COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_USER_NAME + " TEXT,"
+                + COLUMN_USER_EMAIL + " TEXT,"
+                + COLUMN_USER_PASSWORD + " TEXT,"
+                + COLUMN_USER_ROLE + " TEXT,"
+                + COLUMN_USER_PHONE + " TEXT,"
+                + COLUMN_USER_IS_LOGGED_IN + " INTEGER DEFAULT 0" + ")";
+        db.execSQL(CREATE_USERS_TABLE);
 
-        db.execSQL("CREATE TABLE " + TABLE_USERS + " (" +
-                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "username TEXT NOT NULL UNIQUE, " +
-                "email TEXT NOT NULL UNIQUE, " +
-                "password TEXT NOT NULL, " +
-                "role TEXT NOT NULL, " +
-                "phoneNumber TEXT, " +
-                "isLoggedIn INTEGER DEFAULT 0" +
-                ");"
-        );
+        String CREATE_PROPERTIES_TABLE = "CREATE TABLE " + TABLE_PROPERTIES + "("
+                + COLUMN_PROPERTY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_TITLE + " TEXT,"
+                + COLUMN_DESCRIPTION + " TEXT,"
+                + COLUMN_PRICE + " REAL,"
+                + COLUMN_ADDRESS + " TEXT,"
+                + COLUMN_TYPE + " TEXT,"
+                + COLUMN_PHONE_NUMBER + " TEXT,"
+                + COLUMN_IMAGE_URL + " TEXT,"
+                + COLUMN_ADMIN_ID + " INTEGER" + ")";
+        db.execSQL(CREATE_PROPERTIES_TABLE);
 
+        String CREATE_IMAGES_TABLE = "CREATE TABLE " + TABLE_PROPERTY_IMAGES + "("
+                + COLUMN_IMAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_IMAGE_PATH + " TEXT NOT NULL,"
+                + COLUMN_PROPERTY_FK_ID + " INTEGER,"
+                + "FOREIGN KEY(" + COLUMN_PROPERTY_FK_ID + ") REFERENCES " + TABLE_PROPERTIES + "(" + COLUMN_PROPERTY_ID + ") ON DELETE CASCADE"
+                + ")";
+        db.execSQL(CREATE_IMAGES_TABLE);
 
-        db.execSQL("CREATE TABLE " + TABLE_PROPERTIES + " (" +
-                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "adminId INTEGER NOT NULL, " +
-                "title TEXT NOT NULL, " +
-                "description TEXT, " +
-                "price REAL NOT NULL, " +
-                "location TEXT NOT NULL, " +
-                "type TEXT NOT NULL, " +
-                "imagePaths TEXT, " +
-                "datePosted TEXT, " +
-                "phoneNumber TEXT, " +
-                "FOREIGN KEY(adminId) REFERENCES users(id)" +
-                ");"
-        );
-
-        db.execSQL("CREATE INDEX idx_location ON properties(location);");
-        db.execSQL("CREATE INDEX idx_type ON properties(type);");
-        db.execSQL("CREATE INDEX idx_price ON properties(price);");
+        String CREATE_FAVORITES_TABLE = "CREATE TABLE " + TABLE_FAVORITES + "("
+                + COLUMN_FAVORITE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_USER_FK_ID + " INTEGER,"
+                + COLUMN_PROPERTY_FAVORITE_FK_ID + " INTEGER,"
+                + "FOREIGN KEY(" + COLUMN_USER_FK_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + ") ON DELETE CASCADE,"
+                + "FOREIGN KEY(" + COLUMN_PROPERTY_FAVORITE_FK_ID + ") REFERENCES " + TABLE_PROPERTIES + "(" + COLUMN_PROPERTY_ID + ") ON DELETE CASCADE"
+                + ")";
+        db.execSQL(CREATE_FAVORITES_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FAVORITES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PROPERTY_IMAGES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PROPERTIES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
         onCreate(db);
     }
 
-
-    // ----------------------------
-    // LOGIN USER
-    // ----------------------------
-    public User loginUser(String email, String password) {
+    public User loginUser(String email, String pass) {
         SQLiteDatabase db = this.getReadableDatabase();
-
-        Cursor cursor = db.rawQuery(
-                "SELECT * FROM " + TABLE_USERS + " WHERE email = ? AND password = ?",
-                new String[]{email, password}
-        );
-
-        if (cursor != null && cursor.moveToFirst()) {
-
-            User user = new User(
-                    cursor.getInt(cursor.getColumnIndexOrThrow("id")),
-                    cursor.getString(cursor.getColumnIndexOrThrow("username")),
-                    cursor.getString(cursor.getColumnIndexOrThrow("email")),
-                    cursor.getString(cursor.getColumnIndexOrThrow("password")),
-                    cursor.getString(cursor.getColumnIndexOrThrow("role")),
-                    cursor.getString(cursor.getColumnIndexOrThrow("phoneNumber"))
-            );
-
+        String[] columns = {COLUMN_USER_ID, COLUMN_USER_EMAIL, COLUMN_USER_PASSWORD, COLUMN_USER_ROLE, COLUMN_USER_PHONE, COLUMN_USER_NAME};
+        String selection = COLUMN_USER_EMAIL + " = ? AND " + COLUMN_USER_PASSWORD + " = ?";
+        String[] selectionArgs = {email, pass};
+        Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null);
+        if (cursor.moveToFirst()) {
+            User user = new User();
+            user.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_USER_ID)));
+            user.setEmail(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_EMAIL)));
+            user.setPassword(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_PASSWORD)));
+            user.setRole(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_ROLE)));
+            user.setPhoneNumber(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_PHONE)));
+            user.setUsername(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_NAME)));
             cursor.close();
             db.close();
             return user;
-        }
-
-        if (cursor != null) cursor.close();
-        db.close();
-        return null;
-    }
-
-
-    // ----------------------------
-    // GET ALL PROPERTIES
-    // ----------------------------
-    public ArrayList<Property> getAllProperties() {
-        ArrayList<Property> list = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_PROPERTIES, null);
-
-        if (cursor.moveToFirst()) {
-            do {
-                Property p = new Property(
-                        cursor.getInt(cursor.getColumnIndexOrThrow("id")),
-                        cursor.getInt(cursor.getColumnIndexOrThrow("adminId")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("title")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("description")),
-                        cursor.getDouble(cursor.getColumnIndexOrThrow("price")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("location")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("type")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("imagePaths")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("datePosted")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("phoneNumber"))
-                );
-
-                list.add(p);
-
-            } while (cursor.moveToNext());
-        }
-
-        cursor.close();
-        db.close();
-        return list;
-    }
-
-
-    // ----------------------------
-    // GET SINGLE PROPERTY
-    // ----------------------------
-    public Property getPropertyById(int propertyId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        Cursor cursor = db.rawQuery(
-                "SELECT * FROM " + TABLE_PROPERTIES + " WHERE id = ?",
-                new String[]{String.valueOf(propertyId)}
-        );
-
-        if (cursor != null && cursor.moveToFirst()) {
-
-            Property p = new Property(
-                    cursor.getInt(cursor.getColumnIndexOrThrow("id")),
-                    cursor.getInt(cursor.getColumnIndexOrThrow("adminId")),
-                    cursor.getString(cursor.getColumnIndexOrThrow("title")),
-                    cursor.getString(cursor.getColumnIndexOrThrow("description")),
-                    cursor.getDouble(cursor.getColumnIndexOrThrow("price")),
-                    cursor.getString(cursor.getColumnIndexOrThrow("location")),
-                    cursor.getString(cursor.getColumnIndexOrThrow("type")),
-                    cursor.getString(cursor.getColumnIndexOrThrow("imagePaths")),
-                    cursor.getString(cursor.getColumnIndexOrThrow("datePosted")),
-                    cursor.getString(cursor.getColumnIndexOrThrow("phoneNumber"))
-            );
-
+        } else {
             cursor.close();
             db.close();
-            return p;
+            return null;
+
         }
-
-        if (cursor != null) cursor.close();
-        db.close();
-        return null;
     }
-
-    public long addProperty(Property p) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put("adminId", p.getAdminId());
-        values.put("title", p.getTitle());
-        values.put("description", p.getDescription());
-        values.put("price", p.getPrice());
-        values.put("location", p.getLocation());
-        values.put("type", p.getType());
-        values.put("imagePaths", p.getImagePaths());
-        values.put("datePosted", p.getDatePosted());
-        values.put("phoneNumber", p.getPhoneNumber());
-
-        long result = db.insert("properties", null, values);
-        db.close();
-        return result;
-    }
-
 }

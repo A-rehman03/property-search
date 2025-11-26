@@ -3,14 +3,13 @@ package activities;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.*;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.realestate.R;
 
 import auth.UserAuthService;
 import auth.ValidationUtils;
 
-public class SignupActivity extends AppCompatActivity {
+public class SignupActivity extends BaseActivity {
 
     EditText etUsername, etEmail, etPassword, etPhone;
     RadioGroup roleGroup;

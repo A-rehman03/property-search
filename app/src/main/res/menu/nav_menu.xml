@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_home"
+            android:title="Home" />
+        <item
+            android:id="@+id/nav_favorites"
+            android:icon="@drawable/ic_favorite_realestate"
+            android:title="Favorites" />
+    </group>
+
+    <!-- Admin Section -->
+    <item
+        android:id="@+id/nav_admin_section"
+        android:title="Admin"
+        android:visible="false">
+        <menu>
+            <item
+                android:id="@+id/nav_admin_dashboard"
+                android:icon="@drawable/ic_dashboard"
+                android:title="Dashboard" />
+            <item
+                android:id="@+id/nav_admin_properties"
+                android:icon="@drawable/ic_my_properties"
+                android:title="My Properties" />
+        </menu>
+    </item>
+
+    <item android:title="Profile">
+        <menu>
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/ic_logout"
+                android:title="Logout" />
+        </menu>
+    </item>
+</menu>
